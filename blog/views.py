@@ -1,4 +1,6 @@
-from rest_framework.generics import CreateAPIView, ListCreateAPIView, ListAPIView, RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView, DestroyAPIView, RetrieveDestroyAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.authentication import TokenAuthentication
 from django.core.exceptions import PermissionDenied
 from .serializers import *
 
@@ -29,11 +31,13 @@ class PostCreateView(CreateAPIView):
 #     def get_queryset(self):
 #         return Post.objects.filter(id=self.kwargs["id"])
 class PostRUDView(RetrieveUpdateDestroyAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = PostSerializer
     lookup_field = "id"
 
     def get(self, request, *args, **kwargs):
-        self.object = self.get_object() 
+        self.object = self.get_object()
         if request.user != self.object.author:
             raise PermissionDenied("Not the owner of this post")
         return super().get(request, *args, **kwargs)
