@@ -1,5 +1,5 @@
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.core.exceptions import PermissionDenied
 from .serializers import *
@@ -10,6 +10,7 @@ from .serializers import *
 class PostCreateView(CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         user = User.objects.get(id=self.request.user.id)
@@ -32,7 +33,7 @@ class PostCreateView(CreateAPIView):
 #         return Post.objects.filter(id=self.kwargs["id"])
 class PostRUDView(RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
     lookup_field = "id"
 
@@ -53,6 +54,7 @@ class PostListAllView(ListAPIView):
 
 class PostListFilteredView(ListAPIView):
     serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         qs = Post.objects.filter(author_id=self.request.user.id)
