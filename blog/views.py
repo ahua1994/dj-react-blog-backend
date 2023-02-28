@@ -1,5 +1,5 @@
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, RetrieveDestroyAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.core.exceptions import PermissionDenied
 from .serializers import *
@@ -10,27 +10,14 @@ from .serializers import *
 class PostCreateView(CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
+        print("hello")
         user = User.objects.get(id=self.request.user.id)
         return super().perform_create(serializer.save(author=user))
 
 
-# class PostEditView(UpdateAPIView):
-#     serializer_class = PostSerializer
-#     lookup_field = "id"
-
-#     def get_queryset(self):
-#         return Post.objects.filter(id=self.kwargs["id"])
-
-
-# class PostDeleteView(DestroyAPIView):
-#     serializer_class = PostSerializer
-#     lookup_field = "id"
-
-#     def get_queryset(self):
-#         return Post.objects.filter(id=self.kwargs["id"])
 class PostRUDView(RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -66,3 +53,23 @@ class PostDetailView(ListAPIView):
 
     def get_queryset(self):
         return Post.objects.filter(id=self.kwargs["id"])
+
+
+class LikeAddView(CreateAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+
+
+class CommentAddView(CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+
+class LikeRDView(RetrieveDestroyAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+
+
+class CommentRUDView(RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
