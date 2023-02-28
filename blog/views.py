@@ -13,7 +13,6 @@ class PostCreateView(CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        print("hello")
         user = User.objects.get(id=self.request.user.id)
         return super().perform_create(serializer.save(author=user))
 
@@ -29,6 +28,13 @@ class PostRUDView(RetrieveUpdateDestroyAPIView):
         if request.user != self.object.author:
             raise PermissionDenied("Not the owner of this post")
         return super().get(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        print("bs?", request.user, self.object.author)
+        if request.user != self.object.author:
+            raise PermissionDenied("Not the owner of this post")
+        return super().patch(request, *args, **kwargs)
 
     def get_queryset(self):
         return Post.objects.filter(id=self.kwargs["id"])
@@ -61,6 +67,16 @@ class LikeAddView(CreateAPIView):
 
 
 class CommentAddView(CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+
+class LikeListView(ListAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+
+
+class CommentListView(ListAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 

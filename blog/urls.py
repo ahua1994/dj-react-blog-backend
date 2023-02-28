@@ -9,6 +9,8 @@ urlpatterns = [
     path("<int:pk>/", PostDetailView.as_view()),
     path("comment/", CommentAddView.as_view()),
     path("like/", LikeAddView.as_view()),
+    path("comment/all/", CommentListView.as_view()),
+    path("like/all/", LikeListView.as_view()),
     path("comment/<int:pk>/", CommentRUDView.as_view()),
     path("like/<int:pk>/", LikeRDView.as_view()),
 ]
